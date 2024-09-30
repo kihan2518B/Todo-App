@@ -70,6 +70,10 @@ export default function Home() {
 
   const handleDeleteTodo = async (id: number) => {
     try {
+      //first filtering out todos state
+      const newTodos = todos.filter((todo) => todo.id != id)
+      setTodos(newTodos)
+
       const res = await fetch(`/api/todos/delete?todoID=${id}`, {
         method: "DELETE",
       });
@@ -77,7 +81,6 @@ export default function Home() {
 
       console.log("data: ", data);
 
-      fetchTodos(); // Refresh the todo list
       showToast("Todo deleted successfully!", "success");
     } catch (error) {
       console.error(error);
@@ -99,6 +102,18 @@ export default function Home() {
 
   return (
     <div className="container mx-auto p-4">
+      {/* Snackbar for toast messages */}
+      <Snackbar
+        open={toastOpen}
+        autoHideDuration={3000}
+        onClose={handleCloseToast}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // You can adjust the position
+      >
+        <Alert onClose={handleCloseToast} severity={toastSeverity} sx={{ width: '100%' }}>
+          {toastMessage}
+        </Alert>
+      </Snackbar>
+
       <h1 className="text-2xl font-bold mb-6 text-center">Todo List</h1>
       <AddTodoForm
         addTodoLoading={addTodoLoading}
@@ -113,18 +128,6 @@ export default function Home() {
         todos={todos}
         handleDeleteTodo={handleDeleteTodo}
       />
-
-      {/* Snackbar for toast messages */}
-      <Snackbar
-        open={toastOpen}
-        autoHideDuration={3000}
-        onClose={handleCloseToast}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} // You can adjust the position
-      >
-        <Alert onClose={handleCloseToast} severity={toastSeverity} sx={{ width: '100%' }}>
-          {toastMessage}
-        </Alert>
-      </Snackbar>
     </div>
   );
 }
