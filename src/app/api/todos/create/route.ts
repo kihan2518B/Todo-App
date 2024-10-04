@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -27,10 +28,19 @@ export async function POST(req: Request) {
         })
 
     } catch (error) {
-        console.log("Error while creating a todo: ", error)
-        return new NextResponse(JSON.stringify({ message: "Error while creating a todo!" }), {
-            status: 504,
+        console.error("Error while creating a todo: ", error);
+
+        // Log more details if it's a known Prisma error
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            console.error("Prisma error code:", error.code);
+            console.error("Prisma meta:", error.meta);
+        } else {
+            console.error("Error message:", error.message);
+        }
+
+        return new NextResponse(JSON.stringify({ message: "Error while creating a todo!", error: error.message }), {
+            status: 500, // Use 500 (internal server error) instead of 504
             headers: { "Content-Type": "application/json" }
-        })
+        });
     }
 }
