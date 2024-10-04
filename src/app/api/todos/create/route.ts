@@ -10,14 +10,14 @@ export async function POST(req: Request) {
         }
 
         // Convert dueDate to Date object if it's a string
-        // const dueDateObject = typeof dueDate === 'string' ? new Date(dueDate) : dueDate;
+        const dueDateObject = typeof dueDate === 'string' ? new Date(dueDate) : dueDate;
 
         const newTodo = await prisma.todo.create({
             data: {
                 title,
                 priority,
                 category,
-                dueDate
+                dueDate: dueDateObject
             }
         })
 
