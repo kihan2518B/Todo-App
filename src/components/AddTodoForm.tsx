@@ -1,4 +1,3 @@
-// components/AddTodoForm.tsx
 import React from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Calendar as CalendarIcon, PlusCircle } from 'lucide-react';
 import { format } from "date-fns";
-// import { Calendar } from "@/components/ui/calendar";
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // Import the calendar styles
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -21,8 +19,8 @@ interface AddTodoFormProps {
     setNewPriority: (priority: "Medium" | "Low" | "High") => void;
     newCategory: string;
     setNewCategory: (category: string) => void;
-    newDueDate: Date;
-    setNewDueDate: (date: Date) => void;
+    newDueDate: Date | null; // Allow null as a valid type
+    setNewDueDate: (date: Date | null) => void; // Handle null
 }
 
 const priorityOptions = ["Low", "Medium", "High"];
@@ -89,8 +87,16 @@ export default function AddTodoForm({
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                             <Calendar
-                                value={newDueDate} // Use value instead of selected
-                                onChange={setNewDueDate} // This is how you capture the new date
+                                value={newDueDate} // Accept Date | null
+                                onChange={(date) => {
+                                    if (Array.isArray(date)) {
+                                        // If it's a range, use the first date
+                                        setNewDueDate(date[0] || null);
+                                    } else {
+                                        // Otherwise, it's a single date or null
+                                        setNewDueDate(date);
+                                    }
+                                }}
                             />
                         </PopoverContent>
                     </Popover>

@@ -17,8 +17,8 @@ interface TodoDashboardProps {
     setNewPriority: (priority: "Medium" | "Low" | "High") => void;
     newCategory: string;
     setNewCategory: (category: string) => void;
-    newDueDate: Date;
-    setNewDueDate: (date: Date) => void;
+    newDueDate: Date | null;
+    setNewDueDate: (date: Date | null) => void;
     handleDeleteTodo: (id: number) => void;
     handleToggleComplete: (id: number) => void;
     handleUpdateTodo: (updatedTodo: TypeTodo) => void;

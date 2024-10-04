@@ -23,10 +23,10 @@ export default function EditTodoModal({
   const [updatedTitle, setUpdatedTitle] = useState(todo.title);
   const [updatedPriority, setUpdatedPriority] = useState<"Medium" | "Low" | "High">(todo.priority);
   const [updatedCategory, setUpdatedCategory] = useState(todo.category);
-  const [EditLoading, setEditLoading] = useState<boolean>(false)
+  const [editLoading, setEditLoading] = useState<boolean>(false);
 
   const handleUpdate = () => {
-    setEditLoading(true)
+    setEditLoading(true);
     const updatedTodo = {
       ...todo,
       title: updatedTitle,
@@ -49,7 +49,7 @@ export default function EditTodoModal({
             onChange={(e) => setUpdatedTitle(e.target.value)}
             placeholder="Task Title"
           />
-          <Select value={updatedPriority} onValueChange={setUpdatedPriority}>
+          <Select value={updatedPriority} onValueChange={(value: string) => setUpdatedPriority(value as "Low" | "Medium" | "High")}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select Priority" />
             </SelectTrigger>
@@ -74,7 +74,7 @@ export default function EditTodoModal({
           </Select>
         </div>
         <DialogFooter>
-          {EditLoading ? (
+          {editLoading ? (
             <Button disabled>Updating...</Button>
           ) : (
             <Button onClick={handleUpdate}>Update Task</Button>

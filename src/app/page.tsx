@@ -16,7 +16,7 @@ export default function Home() {
   const [newTodo, setNewTodo] = useState<string>("");
   const [newPriority, setNewPriority] = useState<"Medium" | "Low" | "High">("Medium");
   const [newCategory, setNewCategory] = useState<string>("");
-  const [newDueDate, setNewDueDate] = useState<Date>(new Date());
+  const [newDueDate, setNewDueDate] = useState<Date | null>(new Date());
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
@@ -69,7 +69,7 @@ export default function Home() {
           priority: newPriority,
           category: newCategory,
           completed: false,
-          dueDate: new Date(newDueDate).toISOString()
+          dueDate: newDueDate ? new Date(newDueDate).toISOString() : null
         }),
       });
 
