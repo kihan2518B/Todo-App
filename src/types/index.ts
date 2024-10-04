@@ -1,7 +1,9 @@
-export type TypeTodo = {
-    id: number,
-    title: string,
-    completed: boolean,
-    createdAt: Date,
-    updatedAt: Date
+// types.ts
+export interface TypeTodo {
+    id: number;
+    title: string;
+    priority: "Low" | "Medium" | "High";
+    category: string;
+    completed: boolean;
+    dueDate: string;
 }

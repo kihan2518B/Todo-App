@@ -1,5 +1,6 @@
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
 
 export default function Navbar() {
@@ -18,7 +19,7 @@ export default function Navbar() {
                     <UserButton />
                 </SignedIn>
                 <SignedOut>
-                    <SignInButton />
+                    <Link href={"/signin"} className='text-[#F5F5F5]'>SignIn</Link>
                 </SignedOut>
             </div>
         </div>

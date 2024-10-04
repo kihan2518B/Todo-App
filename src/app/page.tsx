@@ -1,18 +1,29 @@
-"use client"
+// app/page.tsx
+
+"use client";
 
 import { useState, useEffect } from "react";
-import AddTodoForm from "@/components/AddTodoForm";
-import ListTodo from "@/components/ListTodo";
 import { TypeTodo } from "@/types";
 import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert"; // For customizing toast styles
+import Alert from "@mui/material/Alert";
+
+import { SignedIn } from "@clerk/nextjs";
+
+import TodoDashboard from "@/components/TodoDashboard";
 
 export default function Home() {
   const [todos, setTodos] = useState<TypeTodo[]>([]);
   const [newTodo, setNewTodo] = useState<string>("");
+  const [newPriority, setNewPriority] = useState<"Medium" | "Low" | "High">("Medium");
+  const [newCategory, setNewCategory] = useState<string>("");
+  const [newDueDate, setNewDueDate] = useState<Date>(new Date());
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
-  const [addTodoLoading, setAddTodoLoading] = useState<boolean>(false)
+  const [addTodoLoading, setAddTodoLoading] = useState<boolean>(false);
+
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [currentTodo, setCurrentTodo] = useState<TypeTodo | null>(null);
 
   // Toast state
   const [toastOpen, setToastOpen] = useState<boolean>(false);
@@ -36,55 +47,104 @@ export default function Home() {
       console.error(error);
       setError(true);
       setLoading(false);
-      showToast("Failed to fetch todos", "error");
+      showToast("Failed to fetch tasks", "error");
     }
   };
 
   const handleCreateTodo = async () => {
     if (!newTodo.trim()) {
-      showToast("Todo cannot be empty", "error");
+      showToast("Task cannot be empty", "error");
       return;
     }
 
     try {
-      setAddTodoLoading(true)
+      setAddTodoLoading(true);
       const res = await fetch("/api/todos/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title: newTodo }),
+        body: JSON.stringify({
+          title: newTodo,
+          priority: newPriority,
+          category: newCategory,
+          completed: false,
+          dueDate: new Date(newDueDate).toISOString()
+        }),
       });
 
       const data = await res.json();
+      console.log("data: ", data)
       setTodos([...todos, data.todo]);
       setNewTodo("");
-      showToast("Todo added successfully!", "success");
+      setNewPriority("Medium");
+      setNewCategory("");
+      showToast("Task added successfully!", "success");
     } catch (error) {
       console.error(error);
-      showToast("Failed to add todo", "error");
+      showToast("Failed to add task", "error");
     } finally {
-      setAddTodoLoading(false)
+      setAddTodoLoading(false);
     }
   };
 
   const handleDeleteTodo = async (id: number) => {
     try {
-      //first filtering out todos state
-      const newTodos = todos.filter((todo) => todo.id != id)
-      setTodos(newTodos)
+      setTodos(todos.filter((todo) => todo.id !== id));
 
-      const res = await fetch(`/api/todos/delete?todoID=${id}`, {
+      await fetch(`/api/todos/delete?todoID=${id}`, {
         method: "DELETE",
       });
-      const data = await res.json()
 
-      console.log("data: ", data);
-
-      showToast("Todo deleted successfully!", "success");
+      showToast("Task deleted successfully!", "success");
     } catch (error) {
       console.error(error);
-      showToast("Failed to delete todo", "error");
+      showToast("Failed to delete task", "error");
+    }
+  };
+
+  const handleToggleComplete = async (id: number) => {
+    try {
+      const updatedTodos = todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      );
+      setTodos(updatedTodos);
+
+      await fetch(`/api/todos/update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, completed: !todos.find((todo) => todo.id === id)?.completed }),
+      });
+    } catch (error) {
+      console.error(error);
+      showToast("Failed to update task", "error");
+    }
+  };
+
+  const handleUpdateTodo = async (updatedTodo: TypeTodo) => {
+    try {
+      const updatedTodos = todos.map((todo) =>
+        todo.id === updatedTodo.id ? updatedTodo : todo
+      );
+      setTodos(updatedTodos);
+
+      await fetch(`/api/todos/update?todoID=${updatedTodo.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedTodo),
+      });
+
+      showToast("Task updated successfully!", "success");
+    } catch (error) {
+      console.error(error);
+      showToast("Failed to update task", "error");
+    } finally {
+      setEditModalOpen(false)
+      setCurrentTodo(null)
     }
   };
 
@@ -101,33 +161,44 @@ export default function Home() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container min-w-full p-4 bg-[#F5F5F5] dark:bg-[#1C1C1C] text-[#2f2a29] dark:text-[#F5F5F5] min-h-screen">
       {/* Snackbar for toast messages */}
       <Snackbar
         open={toastOpen}
         autoHideDuration={3000}
         onClose={handleCloseToast}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // You can adjust the position
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert onClose={handleCloseToast} severity={toastSeverity} sx={{ width: '100%' }}>
           {toastMessage}
         </Alert>
       </Snackbar>
+      <SignedIn >
 
-      <h1 className="text-2xl font-bold mb-6 text-center">Todo List</h1>
-      <AddTodoForm
-        addTodoLoading={addTodoLoading}
-        handleCreateTodo={handleCreateTodo}
-        newTodo={newTodo}
-        setNewTodo={setNewTodo}
-      />
+        <TodoDashboard
+          setCurrentTodo={setCurrentTodo}
+          currentTodo={currentTodo}
+          setEditModalOpen={setEditModalOpen}
+          editModalOpen={editModalOpen}
+          todos={todos}
+          loading={loading}
+          error={error}
+          newTodo={newTodo}
+          setNewTodo={setNewTodo}
+          handleCreateTodo={handleCreateTodo}
+          addTodoLoading={addTodoLoading}
+          newPriority={newPriority}
+          setNewPriority={setNewPriority}
+          newCategory={newCategory}
+          setNewCategory={setNewCategory}
+          handleDeleteTodo={handleDeleteTodo}
+          handleUpdateTodo={handleUpdateTodo}
+          handleToggleComplete={handleToggleComplete}
+          newDueDate={newDueDate}
+          setNewDueDate={setNewDueDate}
+        />
+      </SignedIn>
 
-      <ListTodo
-        loading={loading}
-        error={error}
-        todos={todos}
-        handleDeleteTodo={handleDeleteTodo}
-      />
     </div>
   );
 }
