@@ -35,10 +35,10 @@ export async function POST(req: Request) {
             console.error("Prisma error code:", error.code);
             console.error("Prisma meta:", error.meta);
         } else {
-            console.error("Error message:", error.message);
+            console.error("Error message:", error);
         }
 
-        return new NextResponse(JSON.stringify({ message: "Error while creating a todo!", error: error.message }), {
+        return new NextResponse(JSON.stringify({ message: "Error while creating a todo!", error: error }), {
             status: 500, // Use 500 (internal server error) instead of 504
             headers: { "Content-Type": "application/json" }
         });
