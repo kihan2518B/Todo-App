@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Edit2, Trash2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+
 import EditTodoModal from '@/components/EditTodoModal';
 
 import Skeleton from '@mui/material/Skeleton';
@@ -54,24 +56,23 @@ export default function ListTodos({
 
     return (
 
-        <Card className="col-span-1 md:col-span-2 lg:col-span-3 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-gray-800 dark:to-gray-900 shadow-xl">
+        <Card className="col-span-1 w-full h-full md:col-span-2 lg:col-span-3 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-gray-800 dark:to-gray-900 shadow-xl">
             <CardHeader>
                 <CardTitle className="flex justify-between items-center text-2xl font-bold text-purple-800 dark:text-purple-300">
                     <span>Tasks Overview</span>
                 </CardTitle>
             </CardHeader>
             {loading ? (
-                <CardContent className='h-[400px] pr-4'>
+                <CardContent className="h-[400px] pr-4">
                     <Skeleton animation="wave" />
                     <Skeleton animation="wave" />
                     <Skeleton animation="wave" />
                     <Skeleton animation="wave" />
                     <Skeleton animation="wave" />
                 </CardContent>
-
             ) : (
                 <CardContent>
-                    {todos.length == 0 && (<>Can't find any task</>)}
+                    {todos.length == 0 && <div>Can't find any task</div>}
                     <ScrollArea className="h-[400px] pr-4">
                         {todos.map((task: TypeTodo) => (
                             <div key={task.id} className="flex mb-2 items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
@@ -81,15 +82,20 @@ export default function ListTodos({
                                         onCheckedChange={() => handleToggleComplete(task.id)}
                                         className="border-purple-400 text-purple-600"
                                     />
-                                    <div className='flex w-full items-center justify-start gap-5'>
-                                        <span className={`text-lg font-medium ${task.completed ? 'line-through text-gray-500' : 'text-gray-800 dark:text-gray-200'}`}>{task.title}</span>
+                                    <div className="flex w-full items-center justify-start gap-5">
+                                        <span className={`text-lg font-medium ${task.completed ? 'line-through text-gray-500' : 'text-gray-800 dark:text-gray-200'}`}>
+                                            {task.title}
+                                        </span>
                                         <div className="flex flex-wrap gap-2 mt-2">
                                             <Badge variant="outline" className={`${priorityColors[task.priority]} text-white px-2 py-1 text-xs font-semibold rounded-full`}>
                                                 {task.priority}
                                             </Badge>
-                                            <Badge variant="outline" className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 px-2 py-1 text-xs font-semibold rounded-full">{task.category}</Badge>
+                                            <Badge variant="outline" className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 px-2 py-1 text-xs font-semibold rounded-full">
+                                                {task.category}
+                                            </Badge>
                                             <Badge variant="outline" className="text-blue-600 dark:text-blue-400 flex items-center px-2 py-1 text-xs font-semibold rounded-full">
-                                                <Calendar className="w-3 h-3 mr-1" />{task.dueDate.split("T")[0]}
+                                                <CalendarTodayIcon className="w-3 h-3 mr-1" />
+                                                {task.dueDate.split("T")[0]}
                                             </Badge>
                                         </div>
                                     </div>

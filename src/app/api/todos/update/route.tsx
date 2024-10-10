@@ -5,7 +5,7 @@ export async function PUT(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
         const Todoid = searchParams.get("todoID");
-        const { title, priority, category, dueDate } = await req.json();
+        const { title, priority, category, dueDate, completed } = await req.json();
 
         if (!Todoid) {
             return new NextResponse(JSON.stringify({ message: "Todo ID is required" }), {
@@ -18,7 +18,7 @@ export async function PUT(req: Request) {
         const updatedTodo = await prisma.todo.update({
             where: { id: Number(Todoid) },
             data: {
-                title, priority, category, dueDate
+                title, priority, category, dueDate, completed
             }
         })
 

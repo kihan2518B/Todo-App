@@ -110,12 +110,16 @@ export default function Home() {
       );
       setTodos(updatedTodos);
 
-      await fetch(`/api/todos/update`, {
+      const updatedTodo = updatedTodos.find((todo) => todo.id == id)
+
+      console.log(updatedTodo);
+
+      await fetch(`/api/todos/update?todoID=${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id, completed: !todos.find((todo) => todo.id === id)?.completed }),
+        body: JSON.stringify(updatedTodo),
       });
     } catch (error) {
       console.error(error);
@@ -173,13 +177,8 @@ export default function Home() {
           {toastMessage}
         </Alert>
       </Snackbar>
-      <SignedIn >
-
+      <SignedIn>
         <TodoDashboard
-          setCurrentTodo={setCurrentTodo}
-          currentTodo={currentTodo}
-          setEditModalOpen={setEditModalOpen}
-          editModalOpen={editModalOpen}
           todos={todos}
           loading={loading}
           error={error}
@@ -198,7 +197,6 @@ export default function Home() {
           setNewDueDate={setNewDueDate}
         />
       </SignedIn>
-
     </div>
   );
 }
